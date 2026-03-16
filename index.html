@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLB - Canvas Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+        #game-container {
+            position: relative;
+        }
+        canvas {
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(156, 39, 176, 0.3);
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+        #score { font-size: 24px; font-weight: bold; }
+        #instructions {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            border-radius: 8px;
+        }
+        .start-screen h1 {
+            font-size: 48px;
+            background: linear-gradient(135deg, #9C27B0, #E91E63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #9C27B0, #E91E63);
+            border: none;
+            color: #fff;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .start-btn:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game" width="800" height="600"></canvas>
+        <div id="ui">
+            <div id="score">Score: 0</div>
+            <div id="lives">Lives: 3</div>
+        </div>
+        <div id="instructions">Use arrow keys or WASD to move. Collect orbs, avoid obstacles.</div>
+        <div class="start-screen" id="start-screen">
+            <h1>GLB</h1>
+            <p style="margin-bottom: 30px; color: #888;">A canvas adventure game</p>
+            <button class="start-btn" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('start-screen');
+        
+        let gameRunning = false;
+        let score = 0;
+        let lives = 3;
+        
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 20,
+            speed: 5,
+            color: '#9C27B0'
+        };
+        
+        const keys = {};
+        const orbs = [];
+        const obstacles = [];
+        
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameRunning = true;
+            score = 0;
+            lives = 3;
+            orbs.length = 0;
+            obstacles.length = 0;
+            spawnOrbs(5);
+            spawnObstacles(3);
+            gameLoop();
+        }
+        
+        function spawnOrbs(count) {
+            for (let i = 0; i < count; i++) {
+                orbs.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: Math.random() * (canvas.height - 40) + 20,
+                    size: 10,
+                    color: '#E91E63'
+                });
+            }
+        }
+        
+        function spawnObstacles(count) {
+            for (let i = 0; i < count; i++) {
+                obstacles.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 60) + 30,
+                    size: 30,
+                    speedX: (Math.random() - 0.5) * 4,
+                    speedY: (Math.random() - 0.5) * 4,
+                    color: '#ff4444'
+                });
+            }
+        }
+        
+        document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+        
+        function update() {
+            // Player movement
+            if (keys['w'] || keys['arrowup']) player.y -= player.speed;
+            if (keys['s'] || keys['arrowdown']) player.y += player.speed;
+            if (keys['a'] || keys['arrowleft']) player.x -= player.speed;
+            if (keys['d'] || keys['arrowright']) player.x += player.speed;
+            
+            // Bounds
+            player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(canvas.height - player.size, player.y));
+            
+            // Move obstacles
+            obstacles.forEach(obs => {
+                obs.x += obs.speedX;
+                obs.y += obs.speedY;
+                if (obs.x <= obs.size || obs.x >= canvas.width - obs.size) obs.speedX *= -1;
+                if (obs.y <= obs.size || obs.y >= canvas.height - obs.size) obs.speedY *= -1;
+            });
+            
+            // Collision with orbs
+            for (let i = orbs.length - 1; i >= 0; i--) {
+                const orb = orbs[i];
+                const dist = Math.hypot(player.x - orb.x, player.y - orb.y);
+                if (dist < player.size + orb.size) {
+                    orbs.splice(i, 1);
+                    score += 10;
+                    document.getElementById('score').textContent = `Score: ${score}`;
+                    if (orbs.length === 0) {
+                        spawnOrbs(5);
+                        spawnObstacles(1);
+                    }
+                }
+            }
+            
+            // Collision with obstacles
+            obstacles.forEach(obs => {
+                const dist = Math.hypot(player.x - obs.x, player.y - obs.y);
+                if (dist < player.size + obs.size) {
+                    lives--;
+                    document.getElementById('lives').textContent = `Lives: ${lives}`;
+                    player.x = canvas.width / 2;
+                    player.y = canvas.height / 2;
+                    if (lives <= 0) {
+                        gameRunning = false;
+                        startScreen.innerHTML = `<h1>Game Over</h1><p style="margin: 20px; color: #888;">Final Score: ${score}</p><button class="start-btn" onclick="startGame()">Play Again</button>`;
+                        startScreen.style.display = 'flex';
+                    }
+                }
+            });
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#1a1a1a';
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+            
+            // Draw orbs
+            orbs.forEach(orb => {
+                ctx.beginPath();
+                ctx.arc(orb.x, orb.y, orb.size, 0, Math.PI * 2);
+                ctx.fillStyle = orb.color;
+                ctx.fill();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = orb.color;
+            });
+            ctx.shadowBlur = 0;
+            
+            // Draw obstacles
+            obstacles.forEach(obs => {
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.size, 0, Math.PI * 2);
+                ctx.fillStyle = obs.color;
+                ctx.fill();
+            });
+            
+            // Draw player
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = player.color;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
