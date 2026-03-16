@@ -71,6 +71,67 @@
             transition: transform 0.2s;
         }
         .start-btn:hover { transform: scale(1.1); }
+        
+        .paywall {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+        }
+        .paywall.show { display: flex; }
+        .paywall-content {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+        }
+        .paywall-content h2 {
+            font-size: 2rem;
+            color: #E91E63;
+            margin-bottom: 1rem;
+        }
+        .paywall-content p { color: #aaa; margin-bottom: 1.5rem; }
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .feature { color: #4CAF50; font-size: 0.9rem; }
+        .price {
+            font-size: 2.5rem;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .price span { font-size: 1rem; color: #888; }
+        .upgrade-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E91E63, #9C27B0);
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .restore-btn {
+            background: transparent;
+            border: 1px solid #444;
+            color: #888;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .note { font-size: 0.8rem; color: #666; margin-top: 0.5rem; }
     </style>
 </head>
 <body>
@@ -79,6 +140,7 @@
         <div id="ui">
             <div id="score">Score: 0</div>
             <div id="lives">Lives: 3</div>
+            <div id="level">Level: 1</div>
         </div>
         <div id="instructions">Use arrow keys or WASD to move. Collect orbs, avoid obstacles.</div>
         <div class="start-screen" id="start-screen">
@@ -86,34 +148,80 @@
             <p style="margin-bottom: 30px; color: #888;">A canvas adventure game</p>
             <button class="start-btn" onclick="startGame()">Start Game</button>
         </div>
+        <div class="paywall" id="paywall">
+            <div class="paywall-content">
+                <h2>Level 5 Reached!</h2>
+                <p>You've reached the free level limit. Upgrade to continue playing!</p>
+                <div class="features">
+                    <div class="feature">&#9733; Unlimited Levels</div>
+                    <div class="feature">&#9733; New Game Modes</div>
+                    <div class="feature">&#9733; No Ads</div>
+                    <div class="feature">&#9733; Leaderboards</div>
+                </div>
+                <p class="price">$4.99<span>/month</span></p>
+                <button class="upgrade-btn" onclick="upgrade()">Upgrade Now</button>
+                <button class="restore-btn" onclick="restore()">Restore Purchase</button>
+                <p class="note">Already a member? Restore your purchase</p>
+            </div>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const startScreen = document.getElementById('start-screen');
+        const paywall = document.getElementById('paywall');
         
         let gameRunning = false;
         let score = 0;
         let lives = 3;
+        let level = 1;
+        let isPremium = false;
+        const FREE_LEVEL_LIMIT = 5;
         
-        const player = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            size: 20,
-            speed: 5,
-            color: '#9C27B0'
-        };
+        // Check for premium status in localStorage
+        if (localStorage.getItem('glb_premium') === 'true') {
+            isPremium = true;
+        }
         
-        const keys = {};
-        const orbs = [];
-        const obstacles = [];
+        function upgrade() {
+            // In production, this would integrate with Stripe/PayPal
+            // For demo, we'll simulate upgrade
+            isPremium = true;
+            localStorage.setItem('glb_premium', 'true');
+            paywall.classList.remove('show');
+            alert('Welcome to GLB Premium! Thank you for upgrading.');
+        }
+        
+        function restore() {
+            // In production, this would verify purchase with app store
+            alert('No previous purchase found. Please upgrade to unlock all levels!');
+        }
+        
+        function nextLevel() {
+            level++;
+            document.getElementById('level').textContent = 'Level: ' + level;
+            
+            // Check if free level limit reached
+            if (!isPremium && level > FREE_LEVEL_LIMIT) {
+                gameRunning = false;
+                paywall.classList.add('show');
+                return true;
+            }
+            
+            // Increase difficulty
+            spawnOrbs(5 + level);
+            spawnObstacles(3 + Math.floor(level / 2));
+            return false;
+        }
         
         function startGame() {
             startScreen.style.display = 'none';
             gameRunning = true;
             score = 0;
             lives = 3;
+            level = 1;
+            document.getElementById('level').textContent = 'Level: 1';
             orbs.length = 0;
             obstacles.length = 0;
             spawnOrbs(5);
@@ -173,11 +281,13 @@
                 const dist = Math.hypot(player.x - orb.x, player.y - orb.y);
                 if (dist < player.size + orb.size) {
                     orbs.splice(i, 1);
-                    score += 10;
+                    score += 10 * level;
                     document.getElementById('score').textContent = `Score: ${score}`;
                     if (orbs.length === 0) {
-                        spawnOrbs(5);
-                        spawnObstacles(1);
+                        // Level complete - check for paywall
+                        if (nextLevel()) {
+                            return; // Paywall shown, stop game
+                        }
                     }
                 }
             }
