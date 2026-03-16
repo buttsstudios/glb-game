@@ -159,7 +159,7 @@
                     <div class="feature">&#9733; Leaderboards</div>
                 </div>
                 <p class="price">$4.99<span>/month</span></p>
-                <button class="upgrade-btn" onclick="upgrade()">Upgrade Now</button>
+                <a href="https://buy.stripe.com/glb-premium" target="_blank" class="upgrade-btn">Subscribe Now</a>
                 <button class="restore-btn" onclick="restore()">Restore Purchase</button>
                 <p class="note">Already a member? Restore your purchase</p>
             </div>
@@ -185,17 +185,13 @@
         }
         
         function upgrade() {
-            // In production, this would integrate with Stripe/PayPal
-            // For demo, we'll simulate upgrade
-            isPremium = true;
-            localStorage.setItem('glb_premium', 'true');
-            paywall.classList.remove('show');
-            alert('Welcome to GLB Premium! Thank you for upgrading.');
+            // Open Stripe Checkout in new tab
+            window.open('https://buy.stripe.com/glb-premium', '_blank');
         }
         
         function restore() {
-            // In production, this would verify purchase with app store
-            alert('No previous purchase found. Please upgrade to unlock all levels!');
+            // In production, verify purchase with Stripe
+            alert('Checking for previous purchases... Contact support@butts-studios.com if you need help.');
         }
         
         function nextLevel() {
