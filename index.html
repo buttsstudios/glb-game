@@ -3,7 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://glb.buttsstudios.com/" />
     <title>GLB - Canvas Game</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta name="description" content="Play GLB — a fast-paced browser game from Butts Studios. Challenge your reflexes and skills.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glb.buttsstudios.com/" />
+    <meta property="og:title" content="GLB - Canvas Game" />
+    <meta property="og:description" content="Play GLB — a fast-paced browser game from Butts Studios. Challenge your reflexes and skills." />
+    <meta property="og:image" content="https://glb.buttsstudios.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Butts Studios" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@buttsstudios" />
+    <meta name="twitter:creator" content="@buttsstudios" />
+    <meta name="twitter:url" content="https://glb.buttsstudios.com/" />
+    <meta name="twitter:title" content="GLB - Canvas Game" />
+    <meta name="twitter:description" content="Play GLB — a fast-paced browser game from Butts Studios. Challenge your reflexes and skills." />
+    <meta name="twitter:image" content="https://glb.buttsstudios.com/og-image.jpg" />
+
+    <!-- Pinterest -->
+    <meta name="pinterest-rich-pin" content="false" />
+
+    <!-- Theme & Mobile -->
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="GLB Game" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -159,12 +192,35 @@
                     <div class="feature">&#9733; Leaderboards</div>
                 </div>
                 <p class="price">$4.99<span>/month</span></p>
-                <a href="https://buy.stripe.com/glb-premium" target="_blank" class="upgrade-btn">Subscribe Now</a>
+                <a href="#" onclick="buyPremium(event)" class="upgrade-btn">Subscribe Now</a>
                 <button class="restore-btn" onclick="restore()">Restore Purchase</button>
                 <p class="note">Already a member? Restore your purchase</p>
             </div>
         </div>
     </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe('pk_live_51TBisj3Fr8U6X9hIo8bGhNNxcDogDxBI2x1Gpu23CzgBbiIkDOUaEAD3JjZ5DYutPBq4Cn0UjxxNQ6elDR6sMnOK00KqcwOnog');
+        
+        async function buyPremium(e) {
+            e.preventDefault();
+            const { error } = await stripe.redirectToCheckout({
+                lineItems: [{ price: 'price_glb_premium', quantity: 1 }],
+                mode: 'payment',
+                successUrl: window.location.origin + '/?premium=true',
+                cancelUrl: window.location.origin + '/?cancelled=true',
+            });
+            if (error) console.error(error);
+        }
+        
+        // Check for premium in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('premium') === 'true') {
+            localStorage.setItem('glb_premium', 'true');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
 
     <script>
         const canvas = document.getElementById('game');

@@ -1,0 +1,9 @@
+# robots.txt for glb.buttsstudios.com
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://glb.buttsstudios.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
