@@ -52,7 +52,7 @@
         }
         canvas {
             border: 2px solid #333;
-            border-radius: 8px;
+            border-radius: 4px;
             box-shadow: 0 0 40px rgba(156, 39, 176, 0.3);
         }
         #ui {
@@ -84,7 +84,7 @@
             justify-content: center;
             align-items: center;
             color: #fff;
-            border-radius: 8px;
+            border-radius: 4px;
         }
         .start-screen h1 {
             font-size: 48px;
@@ -99,7 +99,7 @@
             background: linear-gradient(135deg, #9C27B0, #E91E63);
             border: none;
             color: #fff;
-            border-radius: 30px;
+            border-radius: 4px;
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -115,7 +115,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            border-radius: 8px;
+            border-radius: 4px;
         }
         .paywall.show { display: flex; }
         .paywall-content {
@@ -151,7 +151,7 @@
             color: #fff;
             font-size: 1.1rem;
             font-weight: bold;
-            border-radius: 30px;
+            border-radius: 4px;
             cursor: pointer;
             margin-bottom: 1rem;
         }
@@ -160,7 +160,7 @@
             border: 1px solid #444;
             color: #888;
             padding: 0.5rem 1rem;
-            border-radius: 20px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
         }
@@ -184,15 +184,12 @@
         <div class="paywall" id="paywall">
             <div class="paywall-content">
                 <h2>Level 5 Reached!</h2>
-                <p>You've reached the free level limit. Upgrade to continue playing!</p>
+                <p>That is the end of the trial. Unlock the full game to keep playing.</p>
                 <div class="features">
                     <div class="feature">&#9733; Unlimited Levels</div>
-                    <div class="feature">&#9733; New Game Modes</div>
-                    <div class="feature">&#9733; No Ads</div>
-                    <div class="feature">&#9733; Leaderboards</div>
                 </div>
-                <p class="price">$4.99<span>/month</span></p>
-                <a href="#" onclick="buyPremium(event)" class="upgrade-btn">Subscribe Now</a>
+                <p class="price">$4.99<span> one-time</span></p>
+                <a href="#" onclick="buyPremium(event)" class="upgrade-btn">Unlock Full Game</a>
                 <button class="restore-btn" onclick="restore()">Restore Purchase</button>
                 <p class="note">Already a member? Restore your purchase</p>
             </div>
@@ -203,22 +200,28 @@
     <script>
         const stripe = Stripe('pk_live_51TBisj3Fr8U6X9hIo8bGhNNxcDogDxBI2x1Gpu23CzgBbiIkDOUaEAD3JjZ5DYutPBq4Cn0UjxxNQ6elDR6sMnOK00KqcwOnog');
         
-        async function buyPremium(e) {
+        // One-time unlock, the same Payment Link the games hub sells (games.buttsstudios.com).
+        const GLB_PAYMENT_LINK = 'https://buy.stripe.com/dRmaEQb0T5M88WJ5Xh7Re03';
+
+        function buyPremium(e) {
             e.preventDefault();
-            const { error } = await stripe.redirectToCheckout({
-                lineItems: [{ price: 'price_glb_premium', quantity: 1 }],
-                mode: 'payment',
-                successUrl: window.location.origin + '/?premium=true',
-                cancelUrl: window.location.origin + '/?cancelled=true',
-            });
-            if (error) console.error(error);
+            window.location.href = GLB_PAYMENT_LINK;
         }
-        
-        // Check for premium in URL
+
+        // Premium unlocks only after the server confirms a paid Checkout session.
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('premium') === 'true') {
-            localStorage.setItem('glb_premium', 'true');
+        const sessionId = urlParams.get('session_id');
+        if (sessionId) {
             window.history.replaceState({}, document.title, window.location.pathname);
+            fetch('/api/verify-purchase?session_id=' + encodeURIComponent(sessionId))
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (d && d.premium === true) {
+                        localStorage.setItem('glb_premium', 'true');
+                        if (typeof isPremium !== 'undefined') isPremium = true;
+                    }
+                })
+                .catch(function () {});
         }
     </script>
 
@@ -241,8 +244,7 @@
         }
         
         function upgrade() {
-            // Open Stripe Checkout in new tab
-            window.open('https://buy.stripe.com/glb-premium', '_blank');
+            window.location.href = GLB_PAYMENT_LINK;
         }
         
         function restore() {
@@ -254,7 +256,7 @@
             level++;
             document.getElementById('level').textContent = 'Level: ' + level;
             
-            // Check if free level limit reached
+            // Check if trial level limit reached
             if (!isPremium && level > FREE_LEVEL_LIMIT) {
                 gameRunning = false;
                 paywall.classList.add('show');
