@@ -42,8 +42,10 @@
             font-family: "Archivo", sans-serif;
         }
         main.gg { width: 100%; max-width: 880px; margin: 0 auto; padding: 24px 16px 48px; flex: 1; }
-        .gg-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-        .gg-head h1 { font: 800 28px/1 var(--bs-display); letter-spacing: -.02em; }
+        .gg-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 18px; }
+        .gg-eyebrow { font: 700 11px/1 var(--bs-display); letter-spacing: .14em; text-transform: uppercase; color: var(--bs-muted); margin-bottom: 10px; }
+        .gg-head h1 { font: 800 clamp(44px, 9vw, 84px)/.92 var(--bs-display); letter-spacing: -.035em; }
+        .gg-lede { font: 400 clamp(17px, 2vw, 20px)/1.4 var(--bs-serif); color: var(--bs-bone-2); margin-top: 10px; max-width: 34ch; }
         .gg-head h1 i { font-style: normal; color: var(--bs-accent); }
         .gg-tools { display: flex; gap: 8px; }
         .gg-tool {
@@ -67,7 +69,9 @@
 
         #stage { position: relative; border: 1px solid var(--bs-line); border-top: 0; border-radius: 0 0 2px 2px; overflow: hidden; background: #070908; }
         canvas#game { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; touch-action: none; cursor: crosshair; }
-        .help { margin-top: 10px; color: var(--bs-muted); font-size: 13px; line-height: 1.5; }
+        .help { margin-top: 14px; color: var(--bs-muted); font: 400 16px/1.5 var(--bs-serif); max-width: 62ch; }
+        .gg-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--bs-line);
+            font: 600 11px/1.3 var(--bs-display); letter-spacing: .1em; text-transform: uppercase; color: var(--bs-muted); }
         kbd { font: 600 11px/1 var(--bs-display); border: 1px solid var(--bs-line); border-radius: 2px; padding: 2px 5px; color: var(--bs-bone-2); }
 
         .panel {
@@ -77,8 +81,8 @@
         .panel.show { display: flex; }
         .panel-in { max-width: 420px; width: 100%; margin: auto; }
         .panel .eyebrow { font: 600 11px/1 var(--bs-display); letter-spacing: .14em; text-transform: uppercase; color: var(--bs-accent); margin-bottom: 10px; }
-        .panel h2 { font: 800 clamp(28px, 7vw, 52px)/1 var(--bs-display); letter-spacing: -.03em; margin-bottom: 10px; }
-        .panel p { color: var(--bs-bone-2); margin-bottom: 16px; line-height: 1.45; }
+        .panel h2 { font: 800 clamp(30px, 7vw, 60px)/.92 var(--bs-display); letter-spacing: -.035em; margin-bottom: 12px; }
+        .panel p { color: var(--bs-bone-2); margin-bottom: 16px; font: 400 17px/1.45 var(--bs-serif); }
         .panel .big { font: 800 44px/1 var(--bs-display); font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
         .panel .sub { color: var(--bs-muted); font-size: 13px; margin-bottom: 14px; }
         .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -98,7 +102,7 @@
         .card-preview { width: 100%; border: 1px solid var(--bs-line); border-radius: 2px; margin-bottom: 14px; display: block; }
 
         /* paywall: premium unlocks only after a server-verified paid Stripe session */
-        .price { font: 800 40px/1 var(--bs-display); margin: 4px 0 4px; color: var(--bs-bone); }
+        .panel p.price { font: 800 40px/1 var(--bs-display); margin: 4px 0 4px; color: var(--bs-bone); }
         .price span { font-size: 14px; color: var(--bs-muted); font-weight: 400; }
         .upgrade-btn { width: 100%; margin: 10px 0 12px; text-align: center; }
         .restore-btn {
@@ -106,7 +110,7 @@
             font-size: 12px; display: inline-block; text-decoration: none;
         }
         .note { font-size: 12px; color: var(--bs-muted); margin-top: 10px; }
-        .panel p.note { margin-bottom: 0; color: var(--bs-muted); font-size: 12px; }
+        .panel p.note { margin-bottom: 0; color: var(--bs-muted); font: 400 12px/1.5 var(--bs-display); }
         .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
         @media (max-width: 560px) {
@@ -114,7 +118,7 @@
             .hud > div { padding: 6px 8px; }
             .hud .v { font-size: 16px; }
             .modes { grid-template-columns: 1fr; }
-            .gg-head h1 { font-size: 24px; }
+            .gg-lede { font-size: 16px; }
             .panel { position: fixed; z-index: 50; }
             .panel h2 { font-size: 30px; }
         }
@@ -125,7 +129,11 @@
 <!--bs:bar--><div class="bs-bar" role="banner"><div class="bs-bar-in"><a class="bs-mark" href="https://buttsstudios.com/" aria-label="Butts Studios home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="12"><rect x="10" y="10" width="80" height="80"/><path d="M10 10 L90 90 M90 10 L10 90"/></g></svg><span>Butts Studios</span></a><span class="bs-crumb"><span class="bs-sep">/</span><a class="bs-sec" href="https://buttsstudios.com/games.html"><i class="bs-dot"></i>Games</a><span class="bs-sep">/</span><span class="bs-here">Glowgrid</span></span><div class="bs-nav" role="navigation" aria-label="Butts Studios sections"><a href="https://buttsstudios.com/books.html">Books</a><a href="https://buttsstudios.com/video.html">Video</a><a href="https://buttsstudios.com/games.html" aria-current="true">Games</a></div></div></div><!--/bs:bar-->
 <main class="gg">
     <div class="gg-head">
-        <h1>Glowgrid<i>.</i></h1>
+        <div>
+            <div class="gg-eyebrow">Butts Studios · Games · 01</div>
+            <h1>Glowgrid<i>.</i></h1>
+            <p class="gg-lede">Gather the light. Dodge the static. A new five-level run every day.</p>
+        </div>
         <div class="gg-tools">
             <button class="gg-tool" id="btn-pause" type="button" aria-label="Pause (P)">Pause</button>
             <button class="gg-tool" id="btn-sound" type="button" aria-pressed="true">Sound on</button>
@@ -142,9 +150,9 @@
 
         <div class="panel show" id="start-screen">
             <div class="panel-in">
-                <div class="eyebrow">Butts Studios · Games</div>
-                <h2>Glowgrid</h2>
-                <p>Gather the light. Dodge the static. Grab lights in quick succession to chain your score.</p>
+                <div class="eyebrow">Choose a run</div>
+                <h2>Ready.</h2>
+                <p>Grab lights in quick succession to chain your score. Clear fast for a bonus.</p>
                 <div class="modes">
                     <button class="mode primary" type="button" data-mode="daily"><b>Today's run</b><span id="daily-label">Five levels, the same board for everyone today.</span></button>
                     <button class="mode" type="button" data-mode="endless"><b>Endless</b><span>Levels keep coming. Five to try, the rest with the full game.</span></button>
@@ -177,6 +185,7 @@
         </div>
     </div>
     <p class="help">Green circles are light: collect them all to clear the level. Red squares are static: touching one costs a life. Purple squares follow you from level 4.</p>
+    <div class="gg-foot"><span>In the browser · keyboard, mouse or touch</span><span>Full game $5 one-time</span></div>
     <div class="sr" aria-live="polite" id="announce"></div>
 </main>
 
