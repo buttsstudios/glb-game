@@ -38,10 +38,10 @@ Kept on purpose: repo path `games/glb`, the `glb.buttsstudios.com` subdomain, th
 - **Onboarding:** an attract-mode board behind the menu, two clear modes, controls on screen, a short legend under the board.
 - **Accessibility:** hazards are squares with an X, light is circles (shape, not colour), aria-live announcements for level, hits and results, visible focus, reduced-motion support, auto-pause when the tab hides.
 - **Mobile:** responsive HiDPI canvas (4:3, scales to width), drag-to-steer, overlays fit a 390px screen with no horizontal scroll.
-- **Studios style:** shared bar/footer untouched; section accent (phosphor green), 2px corners, full even borders.
+- **Studios visual pass:** display headline (Archivo 800, tight leading) with eyebrow and Newsreader lede as on buttsstudios.com, HUD as a ruled strip, display-type panels with serif body, plate-style foot line, new OG card. Shared bar/footer untouched; section accent (phosphor green), 2px corners, full even borders.
 
 ## Playtest (xps, headless Chromium)
-Bot run, desktop 1280: Today's run completed all 5 levels (9,548, 2 hits). Endless reached the level-5 trial gate and showed the paywall. Mobile 390: no page errors, `scrollWidth` 390. Shots: `~/buttsstudios/staged/games_next_level/glb/`.
+Bot run, desktop 1280: Today's run completed all 5 levels (9,548, 2 hits). Endless reached the level-5 trial gate and showed the paywall. Mobile 390: no page errors, `scrollWidth` 390. Shots + `after_play.gif`: `~/buttsstudios/staged/games_next_level/glb/`. Before: Start threw `orbs is not defined`; the 800px canvas overflowed mobile.
 
 ## Next
 - A second daily ("hard" seed) and a weekly board need a server; the leaderboard is out of scope until then.
