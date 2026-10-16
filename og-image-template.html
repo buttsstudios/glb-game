@@ -2,60 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      width: 1200px;
-      height: 630px;
-      background: #0a0a0a;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 60px;
+      width: 1200px; height: 630px; position: relative; overflow: hidden; font-family: 'Archivo', sans-serif;
+      background-color: #070908;
+      background-image: linear-gradient(#141816 1px, transparent 1px), linear-gradient(90deg, #141816 1px, transparent 1px);
+      background-size: 40px 40px; color: #F1ECE2;
     }
-    .glb-logo {
-      font-size: 96px;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 20px;
-      letter-spacing: 8px;
-    }
-    .glb-subtitle {
-      font-size: 18px;
-      color: #9C27B0;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 40px;
-    }
-    h1 {
-      font-size: 32px;
-      font-weight: 400;
-      color: #888;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-    p {
-      font-size: 18px;
-      color: #555;
-      text-align: center;
-    }
-    .badge {
-      position: absolute;
-      bottom: 40px;
-      right: 60px;
-      font-size: 14px;
-      color: #444;
-      font-family: 'Courier New', monospace;
-    }
+    .eyebrow { position: absolute; left: 72px; top: 96px; font-weight: 600; font-size: 20px; letter-spacing: .14em; color: #7BC47F; }
+    .name { position: absolute; left: 66px; top: 132px; font-weight: 800; font-size: 150px; letter-spacing: -.04em; line-height: 1; }
+    .name i { font-style: normal; color: #7BC47F; }
+    .line { position: absolute; left: 72px; top: 318px; font-size: 34px; color: #D9D3C7; }
+    .foot { position: absolute; left: 72px; bottom: 64px; font-weight: 600; font-size: 20px; color: #9A948A; }
+    svg { position: absolute; right: 0; top: 0; }
   </style>
 </head>
 <body>
-  <div class="glb-logo">GLB</div>
-  <div class="glb-subtitle">Canvas Game</div>
-  <h1>Fast-Paced Browser Action</h1>
-  <p>Challenge your reflexes and skills</p>
-  <div class="badge">glb.buttsstudios.com</div>
+  <svg width="1200" height="630" viewBox="0 0 1200 630">
+    <defs><filter id="g"><feGaussianBlur stdDeviation="6"/></filter></defs>
+    <path d="M700 520 C 760 380, 900 470, 950 330 S 1100 160, 1040 110" fill="none" stroke="#7BC47F" stroke-width="14" stroke-linecap="round" opacity=".35" filter="url(#g)"/>
+    <path d="M700 520 C 760 380, 900 470, 950 330 S 1100 160, 1040 110" fill="none" stroke="#7BC47F" stroke-width="4" stroke-linecap="round"/>
+    <g fill="#7BC47F"><circle cx="820" cy="420" r="11"/><circle cx="950" cy="330" r="11"/><circle cx="1075" cy="190" r="11"/><circle cx="1110" cy="420" r="11"/><circle cx="880" cy="200" r="11"/></g>
+    <g fill="#E2553A"><rect x="1000" y="470" width="30" height="30"/><rect x="1125" y="290" width="30" height="30"/></g>
+    <circle cx="1040" cy="110" r="14" fill="#F1ECE2"/><circle cx="1040" cy="110" r="6" fill="#7BC47F"/>
+  </svg>
+  <div class="eyebrow">BUTTS STUDIOS · GAMES</div>
+  <div class="name">Glowgrid<i>.</i></div>
+  <div class="line">Gather the light. Dodge the static.</div>
+  <div class="foot">A new five-level run every day · glb.buttsstudios.com</div>
 </body>
 </html>

@@ -1,24 +1,22 @@
 {
-  "name": "GLB Game",
-  "short_name": "GLB",
-  "description": "Fast-paced browser action game - challenge your reflexes and skills.",
+  "name": "Glowgrid",
+  "short_name": "Glowgrid",
+  "description": "Gather the light, dodge the static. A browser arcade game from Butts Studios.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#9C27B0",
-  "orientation": "landscape",
+  "background_color": "#050707",
+  "theme_color": "#050707",
+  "orientation": "any",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png"
     }
   ],
-  "categories": ["games", "action"],
+  "categories": [
+    "games",
+    "action"
+  ],
   "lang": "en-US"
 }
