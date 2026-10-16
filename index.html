@@ -165,6 +165,8 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
+            display: inline-block;
+            text-decoration: none;
         }
         .note { font-size: 0.8rem; color: #666; margin-top: 0.5rem; }
     </style>
@@ -194,8 +196,8 @@
                 </div>
                 <p class="price">$5<span> one-time</span></p>
                 <a href="#" onclick="buyPremium(event)" class="upgrade-btn">Unlock Full Game</a>
-                <button class="restore-btn" onclick="restore()">Restore Purchase</button>
-                <p class="note">Already a member? Restore your purchase</p>
+                <a class="restore-btn" href="mailto:support@buttsstudios.com?subject=GLB%20restore%20purchase&amp;body=The%20email%20I%20paid%20with%3A%20">Restore Purchase</a>
+                <p class="note">Bought it on another device or browser? Use Restore Purchase to email us the address you paid with, and we will send you an unlock link.</p>
             </div>
         </div>
     </div>
@@ -249,11 +251,6 @@
         
         function upgrade() {
             window.location.href = GLB_PAYMENT_LINK;
-        }
-        
-        function restore() {
-            // In production, verify purchase with Stripe
-            alert('Checking for previous purchases... Contact support@buttsstudios.com if you need help.');
         }
         
         function nextLevel() {
