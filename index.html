@@ -69,9 +69,14 @@
 
         #stage { position: relative; border: 1px solid var(--bs-line); border-top: 0; border-radius: 0 0 2px 2px; overflow: hidden; background: #070908; }
         canvas#game { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; touch-action: none; cursor: crosshair; }
-        /* How to play: plain-language fundamentals (Principal 2026-10-17) */
-        .htp { margin-top: 18px; border: 1px solid var(--bs-line); border-radius: 2px; padding: 14px 16px; }
-        .htp > h2 { font: 700 13px/1 var(--bs-display); letter-spacing: .12em; text-transform: uppercase; color: var(--bs-bone-2); margin-bottom: 12px; }
+        /* How to play: plain-language fundamentals (Principal 2026-10-17). Closed on load; the How to play button opens it. */
+        .htp { margin: 0 0 18px; border: 1px solid var(--bs-line); border-radius: 2px; padding: 14px 16px; background: var(--bs-ink); }
+        .htp[hidden] { display: none; }
+        .htp:focus { outline: none; }
+        .htp:focus-visible { outline: 2px solid var(--bs-bone); outline-offset: 2px; }
+        .htp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .htp-head h2 { font: 700 13px/1 var(--bs-display); letter-spacing: .12em; text-transform: uppercase; color: var(--bs-bone-2); }
+        .gg-tool[aria-expanded="true"] { color: var(--bs-bone); border-color: var(--bs-bone); }
         .howto { text-align: left; max-width: 68ch; }
         .howto h3 { font: 700 12px/1.2 var(--bs-display); letter-spacing: .12em; text-transform: uppercase; color: var(--bs-accent); margin: 16px 0 6px; }
         .howto h3:first-child { margin-top: 0; }
@@ -79,8 +84,6 @@
         .htp .about { margin-top: 14px; border: 1px solid var(--bs-line); border-radius: 2px; padding: 10px 12px; }
         .htp .about summary { cursor: pointer; font: 600 14px/1.3 var(--bs-display); color: var(--bs-bone); }
         .htp .about p { font: 400 15px/1.55 var(--bs-serif); color: var(--bs-bone-2); margin-top: 8px; }
-        #howto-panel { align-items: flex-start; z-index: 1000; background: #050707; }
-        .howto-in { max-width: 560px; }
         .linkish { background: none; border: 0; padding: 0; color: var(--bs-bone); text-decoration: underline; cursor: pointer; font: inherit; }
         .gg-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--bs-line);
             font: 600 11px/1.3 var(--bs-display); letter-spacing: .1em; text-transform: uppercase; color: var(--bs-muted); }
@@ -132,6 +135,10 @@
             .modes { grid-template-columns: 1fr; }
             .gg-lede { font-size: 16px; }
             .panel { position: fixed; z-index: 50; }
+            /* phones: the run panels cover the page below the title and its buttons (so How to play stays in reach),
+               and an open How to play section hides them until it is closed */
+            .panel { top: var(--gg-top, 0px); }
+            body.howto-open .panel.show { display: none; }
             .panel h2 { font-size: 30px; }
         }
     </style>
@@ -147,11 +154,35 @@
             <p class="gg-lede">Gather the light. Dodge the static. A new five-level run every day.</p>
         </div>
         <div class="gg-tools">
-            <button class="gg-tool" id="btn-howto" type="button" aria-haspopup="dialog">How to play</button>
+            <button class="gg-tool" id="btn-howto" type="button" aria-expanded="false" aria-controls="how-to-play">How to play</button>
             <button class="gg-tool" id="btn-pause" type="button" aria-label="Pause (P)">Pause</button>
             <button class="gg-tool" id="btn-sound" type="button" aria-pressed="true">Sound on</button>
         </div>
     </div>
+    <section class="htp" id="how-to-play" aria-labelledby="htp-title" tabindex="-1" hidden>
+    <div class="htp-head"><h2 id="htp-title">How to play</h2><button class="gg-tool" id="btn-howto-close" type="button">Hide</button></div>
+    <div class="howto">
+        <h3>The goal</h3>
+        <p>Steer your light to collect every green circle on the board. When the last one is gone, the next level starts. Today&rsquo;s run is five levels. Endless keeps going until you run out of lives.</p>
+        <h3>How to play</h3>
+        <p>You control the glowing light. Move it with the arrow keys or W, A, S and D. With a mouse or a phone, press on the board and drag; your light glides toward your finger or pointer.</p>
+        <p>Press P or the Pause button to pause, and M or the Sound button to turn sound on or off. Before a run, choose Today&rsquo;s run (the same five levels for every player today) or Endless.</p>
+        <h3>What things cost</h3>
+        <p>You get 3 lives for each run. Touching a red square costs one life. Lives do not come back during a run, and the run ends when all three are gone.</p>
+        <p>Today&rsquo;s run is open to everyone. Endless lets you play levels 1 to 5. The full game is a one-time payment of $5 that opens every level after 5 in Endless. It unlocks in the browser you paid in. If you paid on another device, use Restore Purchase to email us the address you paid with.</p>
+        <h3>How you earn</h3>
+        <p>Each light is worth 10 points times the level number. Grab lights within about a second and a half of each other to build a chain, up to times 8, which multiplies your points. Clearing a level fast adds a speed bonus.</p>
+        <p>Your best scores are saved in this browser, and you can share a picture of your run. Points have no cash value. You cannot win money in this game.</p>
+        <h3>The challenge</h3>
+        <p>Red squares drift and bounce around the board, and each level adds more of them, moving faster. From level 4 a purple square chases you. From level 6 some squares grow and shrink. Getting hit breaks your chain. The squares stay still and harmless while each level&rsquo;s name is on screen, and you blink safely for a moment after a hit.</p>
+        <h3>Quick tip</h3>
+        <p>Follow the shape the lights make, so you collect them in one smooth line and keep your chain going.</p>
+    </div>
+    <details class="about">
+        <summary>Read more about Glowgrid</summary>
+        <p>Each level lays its lights out in a named pattern, such as a ring, a spiral or a zigzag, and the pattern suggests a route. Your light leaves a trail, and the whole run is drawn on the share card at the end. The circles are light and the squares with an X are static, so the shapes tell them apart as well as the colors.</p>
+    </details>
+    </section>
     <div class="hud" aria-hidden="true">
         <div><span class="k">Score</span><span class="v" id="h-score">0</span></div>
         <div><span class="k">Chain</span><span class="v" id="h-combo">x1</span></div>
@@ -172,7 +203,7 @@
                 </div>
                 <div class="tiny" id="best-line"></div>
                 <div class="tiny">Arrows or WASD, or drag on the board. <kbd>P</kbd> pauses, <kbd>M</kbd> mutes.</div>
-                <div class="tiny"><button class="linkish" type="button" data-howto>How to play</button></div>
+                <div class="tiny"><button class="linkish" type="button" data-howto aria-expanded="false" aria-controls="how-to-play">How to play</button></div>
             </div>
         </div>
 
@@ -182,7 +213,7 @@
             <div class="panel-in">
                 <h2>Paused</h2>
                 <div class="row"><button class="btn" type="button" id="btn-resume">Resume</button><button class="btn ghost" type="button" id="btn-quit">End run</button></div>
-                <div class="tiny"><button class="linkish" type="button" data-howto>How to play</button></div>
+                <div class="tiny"><button class="linkish" type="button" data-howto aria-expanded="false" aria-controls="how-to-play">How to play</button></div>
             </div>
         </div>
 
@@ -198,38 +229,7 @@
                 <p class="note">Bought it on another device or browser? Use Restore Purchase to email us the address you paid with, and we will send you an unlock link.</p>
             </div>
         </div>
-        <div class="panel" id="howto-panel" role="dialog" aria-modal="true" aria-labelledby="howto-title">
-            <div class="panel-in howto-in">
-                <h2 id="howto-title">How to play</h2>
-                <div id="howto-body"></div>
-                <div class="row"><button class="btn" type="button" id="btn-howto-close">Close</button></div>
-            </div>
-        </div>
     </div>
-    <section class="htp" id="how-to-play" aria-labelledby="htp-title">
-    <h2 id="htp-title">How to play</h2>
-    <div class="howto">
-        <h3>The goal</h3>
-        <p>Steer your light to collect every green circle on the board. When the last one is gone, the next level starts. Today&rsquo;s run is five levels. Endless keeps going until you run out of lives.</p>
-        <h3>What you control</h3>
-        <p>You control the glowing light. Move it with the arrow keys or W, A, S and D. With a mouse or a phone, press on the board and drag; your light glides toward your finger or pointer.</p>
-        <p>Press P or the Pause button to pause, and M or the Sound button to turn sound on or off. Before a run, choose Today&rsquo;s run (the same five levels for every player today) or Endless.</p>
-        <h3>What things cost</h3>
-        <p>You get 3 lives for each run. Touching a red square costs one life. Lives do not come back during a run, and the run ends when all three are gone.</p>
-        <p>Today&rsquo;s run is open to everyone. Endless lets you play levels 1 to 5. The full game is a one-time payment of $5 that opens every level after 5 in Endless. It unlocks in the browser you paid in. If you paid on another device, use Restore Purchase to email us the address you paid with.</p>
-        <h3>How you earn</h3>
-        <p>Each light is worth 10 points times the level number. Grab lights within about a second and a half of each other to build a chain, up to times 8, which multiplies your points. Clearing a level fast adds a speed bonus.</p>
-        <p>Your best scores are saved in this browser, and you can share a picture of your run. Points have no cash value. You cannot win money in this game.</p>
-        <h3>What makes it hard</h3>
-        <p>Red squares drift and bounce around the board, and each level adds more of them, moving faster. From level 4 a purple square chases you. From level 6 some squares grow and shrink. Getting hit breaks your chain. The squares stay still and harmless while each level&rsquo;s name is on screen, and you blink safely for a moment after a hit.</p>
-        <h3>Quick tip</h3>
-        <p>Follow the shape the lights make, so you collect them in one smooth line and keep your chain going.</p>
-    </div>
-    <details class="about">
-        <summary>Read more about Glowgrid</summary>
-        <p>Each level lays its lights out in a named pattern, such as a ring, a spiral or a zigzag, and the pattern suggests a route. Your light leaves a trail, and the whole run is drawn on the share card at the end. The circles are light and the squares with an X are static, so the shapes tell them apart as well as the colors.</p>
-    </details>
-    </section>
     <div class="gg-foot"><span>In the browser · keyboard, mouse or touch</span><span>Full game $5 one-time</span></div>
     <div class="sr" aria-live="polite" id="announce"></div>
 </main>
@@ -400,7 +400,6 @@
         document.addEventListener('keydown', (e) => {
             const k = e.key.toLowerCase();
             if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k) && S.running) e.preventDefault();
-            if (k === 'escape' && howtoPanel.classList.contains('show')) { closeHowto(); return; }
             if (k === 'p' || k === 'escape') { togglePause(); return; }
             if (k === 'm') { setSound(!soundOn); return; }
             keys[k] = true;
@@ -756,19 +755,38 @@
         // ---------- wiring ----------
         document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => newRun(b.dataset.mode)));
         $('btn-pause').onclick = () => { if (S.running) togglePause(); };
-        // How to play: the same text as the section under the board; opening it pauses a run in progress.
-        const howtoPanel = $('howto-panel');
-        $('howto-body').innerHTML = document.querySelector('#how-to-play .howto').outerHTML;
-        let howtoFrom = null;
-        function openHowto(e) {
-            howtoFrom = (e && e.currentTarget) || null;
-            if (S.running && !S.paused && !S.over) togglePause();
-            howtoPanel.classList.add('show'); howtoPanel.scrollTop = 0; $('btn-howto-close').focus({ preventScroll: true });
+        // How to play (Principal 2026-10-17): closed on load, every visit. The How to play button by the title opens and
+        // closes it; opening it pauses a run in progress. Esc or Hide closes it and returns focus to the button.
+        const howto = $('how-to-play');
+        const howtoBtns = [$('btn-howto'), ...document.querySelectorAll('[data-howto]')];
+        let howtoFrom = $('btn-howto');
+        function setHowto(open) {
+            howto.hidden = !open;
+            document.body.classList.toggle('howto-open', open);
+            howtoBtns.forEach((b) => b.setAttribute('aria-expanded', String(open)));
+            if (open) {
+                if (S.running && !S.paused && !S.over) togglePause();
+                howto.focus();
+            } else if (howtoFrom) howtoFrom.focus({ preventScroll: true });
         }
-        function closeHowto() { howtoPanel.classList.remove('show'); if (howtoFrom) howtoFrom.focus({ preventScroll: true }); }
-        $('btn-howto').onclick = openHowto;
-        document.querySelectorAll('[data-howto]').forEach((b) => { b.onclick = openHowto; });
-        $('btn-howto-close').onclick = closeHowto;
+        // phones: keep the fixed run panels below the header tools
+        const ggTools = document.querySelector('.gg-tools');
+        let ggTopQueued = false;
+        function placePanels() {
+            ggTopQueued = false;
+            document.documentElement.style.setProperty('--gg-top', `${Math.max(0, Math.round(ggTools.getBoundingClientRect().bottom + 8))}px`);
+        }
+        const queuePlace = () => { if (!ggTopQueued) { ggTopQueued = true; requestAnimationFrame(placePanels); } };
+        window.addEventListener('scroll', queuePlace, { passive: true });
+        window.addEventListener('resize', queuePlace);
+        placePanels();
+        howtoBtns.forEach((b) => { b.onclick = () => { howtoFrom = b; setHowto(howto.hidden); }; });
+        $('btn-howto-close').onclick = () => setHowto(false);
+        window.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape' || howto.hidden) return;
+            e.preventDefault(); e.stopImmediatePropagation(); setHowto(false);
+        }, true);
+        if (location.hash === '#how-to-play') setHowto(true); // the games hub links here on purpose
         $('btn-resume').onclick = togglePause;
         $('btn-quit').onclick = () => { S.paused = false; paused.classList.remove('show'); finish('over'); };
         $('btn-sound').onclick = () => setSound(!soundOn);
