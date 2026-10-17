@@ -633,7 +633,7 @@
                 '<div class="sub">' + (isBest ? 'New best' : 'Best ' + prev.toLocaleString('en-US')) + ' · level ' + S.level + ' · ' + S.collected + ' lights</div>' +
                 '<img class="card-preview" alt="Your run, drawn as a light trail" src="' + card.toDataURL('image/png') + '">' +
                 '<div class="row">' +
-                '<button class="btn" type="button" id="btn-share">Share card</button>' +
+                '<button class="btn ghost" type="button" id="btn-share">Save card</button>' +
                 '<button class="btn ghost" type="button" id="btn-again">' + (S.mode === 'daily' ? 'Run it again' : 'Play again') + '</button>' +
                 '<button class="btn ghost" type="button" id="btn-menu">Menu</button></div>';
             result.classList.add('show');
@@ -643,6 +643,14 @@
             $('btn-again').onclick = () => newRun(S.mode);
             $('btn-menu').onclick = menu;
             $('btn-share').focus({ preventScroll: true });
+            // Share the result (text + link) first in the row; it takes focus once the module is in.
+            const row = $('result-in').querySelector('.row'), endKind = kind;
+            shareMod.then((m) => {
+                if (!result.classList.contains('show') || !row.isConnected) return;
+                const w = m.createShare({ spec: () => shareSpec(endKind, m), primary: true, colors: SHARE_COLORS, onShare: reportShare });
+                row.insertBefore(w.el, row.firstChild);
+                w.button.focus({ preventScroll: true });
+            }, () => {});
             $('btn-pause').textContent = 'Pause';
         }
 
@@ -675,6 +683,35 @@
             x.fillStyle = '#D9D3C7'; x.font = '600 22px Archivo, sans-serif'; x.fillText('Butts Studios · glb.buttsstudios.com', 60, 570);
             return c;
         }
+        // ---------- share the result as text + link (share.js: one button, plain intent URLs, no SDKs) ----------
+        const SHARE_URL = 'https://glb.buttsstudios.com/';
+        const SHARE_COLORS = { accent: 'var(--bs-accent)', bg: 'var(--bs-ink)', panel: 'transparent', line: 'var(--bs-line)', ink: 'var(--bs-bone)', button: 'var(--bs-accent)', buttonInk: 'var(--bs-ink)' };
+        const shareMod = import('./share.js');
+        function reportShare(medium) {
+            if (typeof window.gtag === 'function') window.gtag('event', 'share', { method: medium, content_type: 'play', item_id: 'glowgrid' });
+        }
+        // The player's real result. Today's run is seeded by the local date, so it carries that date (the board's own);
+        // Endless carries the UTC day.
+        function shareSpec(kind, m) {
+            const pts = S.score.toLocaleString('en-US') + (S.score === 1 ? ' point' : ' points');
+            let text;
+            if (S.mode === 'daily') {
+                const cleared = kind === 'daily' ? DAILY_LEVELS : Math.max(0, S.level - 1);
+                const got = []; for (let i = 0; i < DAILY_LEVELS; i++) got.push(i < cleared);
+                text = (cleared === DAILY_LEVELS ? "I cleared all " + DAILY_LEVELS + " levels of today's Glowgrid run" : 'I cleared ' + cleared + ' of ' + DAILY_LEVELS + " levels in today's Glowgrid run") +
+                    ' with ' + pts + ' (' + todayKey() + '). Can you?\n' + m.marksGrid(got);
+            } else {
+                const cleared = kind === 'trial' ? S.level : Math.max(0, S.level - 1);
+                text = (cleared > 0 ? 'I cleared level ' + cleared + ' of Glowgrid with ' + pts : 'I scored ' + pts + ' in Glowgrid') + ' (' + m.utcDay() + ' UTC). Can you?';
+            }
+            return { text, url: SHARE_URL, campaign: 'play', title: 'Glowgrid' };
+        }
+        // Level 5 cleared (end of the Endless trial): share from the paywall too.
+        shareMod.then((m) => {
+            const w = m.createShare({ spec: () => shareSpec('trial', m), colors: SHARE_COLORS, onShare: reportShare });
+            const row = $('btn-paywall-done').parentNode;
+            row.insertBefore(w.el, row.firstChild);
+        }, () => {});
         function share(card) {
             const text = 'Glowgrid ' + (S.mode === 'daily' ? "today's run (" + todayKey() + ')' : 'endless') + ': ' + S.score.toLocaleString('en-US') + '. glb.buttsstudios.com';
             card.toBlob(async (blob) => {
