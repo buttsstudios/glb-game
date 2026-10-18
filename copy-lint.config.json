@@ -1,0 +1,9 @@
+{
+  "allow": [
+    {
+      "file": "index.html",
+      "re": "free level limit|\\$4\\.99<span>/month",
+      "why": "staged fix on design/next-level-2026-10-16 (GLB $5, new Payment Link placeholder); Payment Link for the Principal"
+    }
+  ]
+}
