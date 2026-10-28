@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <!-- Subdomain stays glb.buttsstudios.com until the staged rename (see DESIGN.md "Rename"). -->
-    <link rel="canonical" href="https://glb.buttsstudios.com/" />
+    <script>window.__BASE__=(location.pathname.indexOf('/games/glowgrid')===0?'/games/glowgrid/':'/');document.write('<base href="'+window.__BASE__+'">');</script>
+    <link rel="canonical" href="https://buttsstudios.com/games/glowgrid" />
     <title>Glowgrid · Butts Studios</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -12,10 +12,10 @@
     <meta name="description" content="Glowgrid: gather the light, dodge the static. A browser arcade game from Butts Studios. Every run draws its own light trail, and every day has a new five-level run.">
 
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://glb.buttsstudios.com/" />
+    <meta property="og:url" content="https://buttsstudios.com/games/glowgrid" />
     <meta property="og:title" content="Glowgrid · Butts Studios" />
     <meta property="og:description" content="Gather the light, dodge the static. A browser arcade game with a new five-level run every day." />
-    <meta property="og:image" content="https://glb.buttsstudios.com/og-image.jpg" />
+    <meta property="og:image" content="https://buttsstudios.com/games/glowgrid/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Butts Studios" />
@@ -24,10 +24,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@buttsstudios" />
     <meta name="twitter:creator" content="@buttsstudios" />
-    <meta name="twitter:url" content="https://glb.buttsstudios.com/" />
+    <meta name="twitter:url" content="https://buttsstudios.com/games/glowgrid" />
     <meta name="twitter:title" content="Glowgrid · Butts Studios" />
     <meta name="twitter:description" content="Gather the light, dodge the static. A browser arcade game with a new five-level run every day." />
-    <meta name="twitter:image" content="https://glb.buttsstudios.com/og-image.jpg" />
+    <meta name="twitter:image" content="https://buttsstudios.com/games/glowgrid/og-image.jpg" />
 
     <meta name="pinterest-rich-pin" content="false" />
     <meta name="theme-color" content="#050707" />
@@ -209,7 +209,7 @@
         const sessionId = urlParams.get('session_id');
         if (sessionId) {
             window.history.replaceState({}, document.title, window.location.pathname);
-            fetch('/api/verify-purchase?session_id=' + encodeURIComponent(sessionId))
+            fetch(window.__BASE__+'api/verify-purchase?session_id=' + encodeURIComponent(sessionId))
                 .then(function (r) { return r.json(); })
                 .then(function (d) {
                     if (d && d.premium === true) {
@@ -626,11 +626,11 @@
             x.font = '800 112px Archivo, sans-serif'; x.fillText(S.score.toLocaleString('en-US'), 56, 370);
             x.fillStyle = '#9A948A'; x.font = '400 26px Archivo, sans-serif';
             x.fillText('level ' + S.level + ' · ' + S.collected + ' lights · ' + S.hits + (S.hits === 1 ? ' hit' : ' hits'), 60, 420);
-            x.fillStyle = '#D9D3C7'; x.font = '600 22px Archivo, sans-serif'; x.fillText('Butts Studios · glb.buttsstudios.com', 60, 570);
+            x.fillStyle = '#D9D3C7'; x.font = '600 22px Archivo, sans-serif'; x.fillText('Butts Studios · buttsstudios.com/games/glowgrid', 60, 570);
             return c;
         }
         function share(card) {
-            const text = 'Glowgrid ' + (S.mode === 'daily' ? "today's run (" + todayKey() + ')' : 'endless') + ': ' + S.score.toLocaleString('en-US') + '. glb.buttsstudios.com';
+            const text = 'Glowgrid ' + (S.mode === 'daily' ? "today's run (" + todayKey() + ')' : 'endless') + ': ' + S.score.toLocaleString('en-US') + '. buttsstudios.com/games/glowgrid';
             card.toBlob(async (blob) => {
                 const file = blob && new File([blob], 'glowgrid-' + S.score + '.png', { type: 'image/png' });
                 try {

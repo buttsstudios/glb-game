@@ -1,7 +1,7 @@
 // Vercel Node function: confirms a Stripe Checkout session (Payment Link redirect) was paid.
 // Replaces the old `?premium=true` URL flag, which unlocked premium without paying.
 // Env: STRIPE_READ_KEY (restricted, Checkout Sessions read), PREMIUM_PAYMENT_LINKS (comma list of plink_ ids).
-// Payment Link "after payment" redirect: https://glb.buttsstudios.com/?session_id={CHECKOUT_SESSION_ID}
+// Payment Link "after payment" redirect: https://buttsstudios.com/games/glowgrid?session_id={CHECKOUT_SESSION_ID} (served by the site proxy at /games/glowgrid)
 module.exports = async (req, res) => {
   const id = String((req.query && req.query.session_id) || '');
   res.setHeader('Cache-Control', 'no-store');
