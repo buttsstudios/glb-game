@@ -2,6 +2,8 @@
 // Replaces the old `?premium=true` URL flag, which unlocked premium without paying.
 // Env: STRIPE_READ_KEY (restricted, Checkout Sessions read), PREMIUM_PAYMENT_LINKS (comma list of plink_ ids).
 // Payment Link "after payment" redirect: https://buttsstudios.com/games/glowgrid?session_id={CHECKOUT_SESSION_ID} (served by the site proxy at /games/glowgrid)
+const { issueToken } = require('./_entitlement');
+
 module.exports = async (req, res) => {
   const id = String((req.query && req.query.session_id) || '');
   res.setHeader('Cache-Control', 'no-store');
@@ -13,5 +15,8 @@ module.exports = async (req, res) => {
   if (!r.ok) return res.status(404).json({ premium: false });
   const s = await r.json();
   const ok = s.status === 'complete' && s.payment_status === 'paid' && allowed.includes(s.payment_link);
-  return res.status(ok ? 200 : 402).json({ premium: ok });
+  // Entitlement token (Env: ENTITLEMENT_SECRET). Omitted when the secret is not configured.
+  const out = { premium: ok };
+  if (ok) { const t = issueToken(process.env.ENTITLEMENT_SECRET, id); if (t) out.token = t; }
+  return res.status(ok ? 200 : 402).json(out);
 };
