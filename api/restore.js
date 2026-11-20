@@ -21,18 +21,17 @@ function limited(key, max, now) {
 }
 const hashPrefix = (e) => crypto.createHash('sha256').update(e).digest('hex').slice(0, 8);
 
+// Stripe forbids combining payment_link with customer_details on the list call, so list this email's sessions (newest first,
+// up to 100) and keep only paid ones on our allowed Payment Links.
 async function findPaidSession(key, links, email) {
   const variants = Array.from(new Set([email, email.toLowerCase()]));
-  for (const link of links) {
-    for (const em of variants) {
-      const u = 'https://api.stripe.com/v1/checkout/sessions?limit=20&payment_link=' + encodeURIComponent(link) +
-        '&customer_details[email]=' + encodeURIComponent(em);
-      const r = await fetch(u, { headers: { Authorization: 'Bearer ' + key } });
-      if (!r.ok) throw new Error('stripe_' + r.status);
-      const j = await r.json();
-      const s = ((j && j.data) || []).find((x) => x && x.status === 'complete' && x.payment_status === 'paid' && x.payment_link === link);
-      if (s) return s.id;
-    }
+  for (const em of variants) {
+    const u = 'https://api.stripe.com/v1/checkout/sessions?limit=100&customer_details[email]=' + encodeURIComponent(em);
+    const r = await fetch(u, { headers: { Authorization: 'Bearer ' + key } });
+    if (!r.ok) throw new Error('stripe_' + r.status);
+    const j = await r.json();
+    const s = ((j && j.data) || []).find((x) => x && x.status === 'complete' && x.payment_status === 'paid' && links.includes(x.payment_link));
+    if (s) return s.id;
   }
   return null;
 }

@@ -200,7 +200,7 @@ test('restore: paid purchase for the email returns a lifetime token bound to the
     assert.strictEqual(r.code, 200); assert.strictEqual(r.body.restored, true);
     const p = verifyToken(RENV.ENTITLEMENT_SECRET, r.body.token, Date.now() + 5 * 365 * 86400000);
     assert.strictEqual(p.sid, 'cs_live_paid1');
-    assert.ok(calls[0].includes('payment_link=plink_ok') && calls[0].includes('customer_details[email]='));
+    assert.ok(calls[0].includes('customer_details[email]=') && !calls[0].includes('payment_link='));
   }); } finally { global.fetch = real; }
 });
 test('restore: no purchase, unpaid session, other link -> restored:false, no token', async () => {
