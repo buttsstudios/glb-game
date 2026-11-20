@@ -242,22 +242,20 @@
         // Server check of the stored entitlement token. Enforcement is controlled server-side (env GLOWGRID_ENFORCE_TOKEN,
         // default off): while off the legacy unlock flag keeps working exactly as before. While on, a bare flag unlocks only
         // until the server's grace date. Network failure never locks anyone out.
-        (function () {
-            if (sessionId) return; // the purchase-return path above is verifying right now
-            const tok = store.get(ENTITLEMENT_KEY, '');
-            if (!tok && !window.isPremium) return;
-            fetch(window.__BASE__ + 'api/entitlement?token=' + encodeURIComponent(tok))
+        // ENT-BEGIN (extracted verbatim by tests/glowgrid.test.js)
+        function entitlementDecision(d, nowMs, cur) { if (!d) return cur; if (d.premium === true) return true; if (d.enforce === true) { const grace = !!d.graceUntil && nowMs < Date.parse(d.graceUntil); return grace ? cur : false; } return cur; }
+        function checkEntitlement(env) {
+            if (env.sessionId) return Promise.resolve(env.isPremium); // the purchase-return path is verifying right now
+            const tok = env.get(ENTITLEMENT_KEY, '');
+            if (!tok && !env.isPremium) return Promise.resolve(env.isPremium);
+            return Promise.resolve().then(function () { return env.fetch(env.base + 'api/entitlement?token=' + encodeURIComponent(tok)); })
                 .then(function (r) { return r.json(); })
-                .then(function (d) {
-                    if (!d) return;
-                    if (d.premium === true) { window.isPremium = true; return; }
-                    if (d.enforce === true) {
-                        const grace = d.graceUntil && Date.now() < Date.parse(d.graceUntil);
-                        if (!grace) window.isPremium = false;
-                    }
-                })
-                .catch(function () {});
-        })();
+                .then(function (d) { return entitlementDecision(d, env.now(), env.isPremium); })
+                .catch(function () { return env.isPremium; }); // fail open: a network or server error never locks a buyer out
+        }
+        // ENT-END
+        checkEntitlement({ sessionId: sessionId, get: store.get, isPremium: window.isPremium, base: window.__BASE__, fetch: function (u) { return fetch(u); }, now: function () { return Date.now(); } })
+            .then(function (v) { window.isPremium = v; });
         const FREE_LEVEL_LIMIT = 5;
         const DAILY_LEVELS = 5;
         const ACCENT = '#7BC47F', STATIC_RED = '#E2553A', CHASER = '#B48CE8', BONE = '#F1ECE2';
