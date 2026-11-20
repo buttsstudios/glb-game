@@ -50,9 +50,12 @@
         .gg-tools { display: flex; gap: 8px; }
         .gg-tool {
             background: transparent; color: var(--bs-bone-2); border: 1px solid var(--bs-line); border-radius: 2px;
-            font: 600 12px/1 var(--bs-display); letter-spacing: .08em; text-transform: uppercase; padding: 8px 10px; cursor: pointer;
+            font: 600 12px/1 var(--bs-display); letter-spacing: .08em; text-transform: uppercase; padding: 8px 12px; min-height: 44px; min-width: 44px; cursor: pointer;
         }
-        .gg-tool:hover, .gg-tool:focus-visible { color: var(--bs-bone); border-color: var(--bs-muted); outline: none; }
+        .gg-tool:hover, .gg-tool:focus-visible { color: var(--bs-bone); border-color: var(--bs-muted); }
+        .gg-tool:focus-visible { outline: 2px solid var(--bs-bone); outline-offset: 2px; }
+        .skip { position: absolute; left: 8px; top: -64px; z-index: 1000; background: var(--bs-bone); color: var(--bs-ink); padding: 12px 16px; font: 700 14px/1 var(--bs-display); text-decoration: none; border-radius: 2px; }
+        .skip:focus, .skip:focus-visible { top: 8px; outline: 2px solid var(--bs-accent); outline-offset: 2px; }
 
         .hud {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--bs-line);
@@ -96,7 +99,8 @@
         .mode { text-align: left; padding: 14px; border: 1px solid var(--bs-line); border-radius: 2px; background: var(--bs-ink); color: var(--bs-bone); cursor: pointer; font-family: var(--bs-display); }
         .mode b { display: block; font-size: 16px; margin-bottom: 4px; }
         .mode span { color: var(--bs-muted); font-size: 12px; line-height: 1.4; display: block; }
-        .mode:hover, .mode:focus-visible { border-color: var(--bs-accent); outline: none; }
+        .mode:hover, .mode:focus-visible { border-color: var(--bs-accent); }
+        .mode:focus-visible { outline: 2px solid var(--bs-bone); outline-offset: 2px; }
         .mode.primary { border-color: var(--bs-accent); }
         .tiny { font-size: 12px; color: var(--bs-muted); margin-top: 10px; line-height: 1.6; }
         .card-preview { width: 100%; border: 1px solid var(--bs-line); border-radius: 2px; margin-bottom: 14px; display: block; }
@@ -132,8 +136,9 @@
 <!--bs:head--><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="/games/glowgrid/studios-section.css"><!--/bs:head-->
 </head>
 <body>
+<a class="skip" href="#main">Skip to the game</a>
 <!--bs:bar--><div class="bs-bar" role="banner"><div class="bs-bar-in"><a class="bs-mark" href="https://buttsstudios.com/" aria-label="Butts Studios home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="12"><rect x="10" y="10" width="80" height="80"/><path d="M10 10 L90 90 M90 10 L10 90"/></g></svg><span>Butts Studios</span></a><span class="bs-crumb"><span class="bs-sep">/</span><a class="bs-sec" href="https://buttsstudios.com/games"><i class="bs-dot"></i>Games</a><span class="bs-sep">/</span><span class="bs-here">Glowgrid</span></span><div class="bs-nav" role="navigation" aria-label="Butts Studios sections"><a href="https://buttsstudios.com/books">Books</a><a href="https://buttsstudios.com/video">Video</a><a href="https://buttsstudios.com/games" aria-current="true">Games</a></div></div></div><!--/bs:bar-->
-<main class="gg">
+<main class="gg" id="main" tabindex="-1">
     <div class="restore-bar" id="restore-bar" hidden role="region" aria-label="Restore your purchase">
         <strong>Restore your purchase.</strong> You unlocked Glowgrid earlier. To keep the full game on this device for good, enter the email you paid with.
         <form id="restore-form" novalidate>
