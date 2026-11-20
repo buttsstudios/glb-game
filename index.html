@@ -200,7 +200,7 @@
                 <p class="price">$5<span> one-time, unlocks in this browser</span></p>
                 <a href="#" onclick="buyPremium(event)" class="btn upgrade-btn">Unlock the full game</a>
                 <div class="row"><button class="btn ghost" type="button" id="btn-paywall-done">See my run</button></div>
-                <p class="note"><a class="restore-btn" href="mailto:support@buttsstudios.com?subject=Glowgrid%20restore%20purchase&amp;body=The%20email%20I%20paid%20with%3A%20">Restore Purchase</a></p>
+                <p class="note"><a class="restore-btn" href="mailto:hello@buttsstudios.com?subject=Glowgrid%20restore%20purchase&amp;body=The%20email%20I%20paid%20with%3A%20">Restore Purchase</a></p>
                 <p class="note">Bought it on another device or browser? Use Restore Purchase to email us the address you paid with, and we will send you an unlock link.</p>
             </div>
         </div>
@@ -311,7 +311,7 @@
                 ev.preventDefault(); msg.textContent = 'Checking...';
                 restorePurchase(env, em.value).then(function (r) {
                     if (r.state === 'restored') { store.set(ENTITLEMENT_KEY, r.token); store.set(PREMIUM_KEY, 'true'); window.isPremium = true; bar.hidden = true; announce('Purchase restored. The full game is unlocked on this device.'); }
-                    else if (r.state === 'none') msg.textContent = 'We did not find a Glowgrid purchase for that email. Try the address you paid with, or email support@buttsstudios.com. Your current unlock keeps working.';
+                    else if (r.state === 'none') msg.textContent = 'We did not find a Glowgrid purchase for that email. Try the address you paid with, or email hello@buttsstudios.com. Your current unlock keeps working.';
                     else if (r.state === 'bad') msg.textContent = 'Please enter a valid email address.';
                     else msg.textContent = 'We could not check right now. Your current unlock keeps working; please try again later.';
                 });
