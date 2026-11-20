@@ -279,3 +279,12 @@ test('legal pages carry no unfilled-fact promises (governing law, venue, address
     assert.ok(!m, f + ' contains: ' + (m && m[0]));
   }
 });
+
+test('legal pages: skip link is the first focusable element and main has id="main" (R1119-HQ4-STUDIOS-55)', () => {
+  for (const f of ['terms.html', 'refunds.html', 'privacy.html']) {
+    const p = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+    const body = p.slice(p.indexOf('<body>'));
+    assert.match(body, /^<body>\s*<a class="skip" href="#main">Skip to main content<\/a>\s*<main id="main"/, f + ' skip link first');
+    assert.match(p, /\.skip:focus-visible\{[^}]*outline:2px solid/, f + ' focus style');
+  }
+});
