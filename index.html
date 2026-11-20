@@ -109,6 +109,12 @@
             background: transparent; border: 1px solid var(--bs-line); color: var(--bs-muted); padding: 8px 12px; border-radius: 2px;
             font-size: 12px; display: inline-block; text-decoration: none;
         }
+        /* one-time restore prompt for pre-token buyers (non-blocking, dismissible) */
+        .restore-bar { border: 1px solid var(--bs-line); border-radius: 2px; padding: 10px 12px; margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: var(--bs-bone); }
+        .restore-bar[hidden] { display: none; }
+        .restore-bar form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .restore-bar input[type=email] { flex: 1 1 200px; min-width: 0; padding: 8px 10px; background: transparent; color: var(--bs-bone); border: 1px solid var(--bs-line); border-radius: 2px; font: inherit; }
+        .restore-bar .rb-msg { margin-top: 6px; color: var(--bs-muted); font-size: 12px; }
         .note { font-size: 12px; color: var(--bs-muted); margin-top: 10px; }
         .panel p.note { margin-bottom: 0; color: var(--bs-muted); font: 400 12px/1.5 var(--bs-display); }
         .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -128,6 +134,16 @@
 <body>
 <!--bs:bar--><div class="bs-bar" role="banner"><div class="bs-bar-in"><a class="bs-mark" href="https://buttsstudios.com/" aria-label="Butts Studios home"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="12"><rect x="10" y="10" width="80" height="80"/><path d="M10 10 L90 90 M90 10 L10 90"/></g></svg><span>Butts Studios</span></a><span class="bs-crumb"><span class="bs-sep">/</span><a class="bs-sec" href="https://buttsstudios.com/games"><i class="bs-dot"></i>Games</a><span class="bs-sep">/</span><span class="bs-here">Glowgrid</span></span><div class="bs-nav" role="navigation" aria-label="Butts Studios sections"><a href="https://buttsstudios.com/books">Books</a><a href="https://buttsstudios.com/video">Video</a><a href="https://buttsstudios.com/games" aria-current="true">Games</a></div></div></div><!--/bs:bar-->
 <main class="gg">
+    <div class="restore-bar" id="restore-bar" hidden role="region" aria-label="Restore your purchase">
+        <strong>Restore your purchase.</strong> You unlocked Glowgrid earlier. To keep the full game on this device for good, enter the email you paid with.
+        <form id="restore-form" novalidate>
+            <label class="sr" for="restore-email">Purchase email</label>
+            <input type="email" id="restore-email" autocomplete="email" placeholder="you@example.com" required>
+            <button class="btn" type="submit">Restore</button>
+            <button class="btn ghost" type="button" id="restore-dismiss">Not now</button>
+        </form>
+        <div class="rb-msg" id="restore-msg" aria-live="polite"></div>
+    </div>
     <div class="gg-head">
         <div>
             <div class="gg-eyebrow">Butts Studios · Games · 01</div>
@@ -254,8 +270,48 @@
                 .catch(function () { return env.isPremium; }); // fail open: a network or server error never locks a buyer out
         }
         // ENT-END
+        // RESTORE-BEGIN (extracted verbatim by tests/glowgrid.test.js)
+        // Posts the typed email to /api/restore. Returns { state: 'restored'|'none'|'error'|'bad', token? }. Never throws.
+        function restorePurchase(env, email) {
+            const em = String(email || '').trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) return Promise.resolve({ state: 'bad' });
+            return Promise.resolve().then(function () { return env.fetch(env.base + 'api/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: em }) }); })
+                .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+                .then(function (x) {
+                    if (x.d && x.d.restored === true && typeof x.d.token === 'string' && x.d.token) return { state: 'restored', token: x.d.token };
+                    if (x.d && x.d.restored === false && x.status === 200) return { state: 'none' };
+                    return { state: 'error' };
+                })
+                .catch(function () { return { state: 'error' }; });
+        }
+        // The prompt shows only for a legacy flag holder with no signed token, and not within 7 days of dismissal.
+        function shouldPromptRestore(env) {
+            if (env.sessionId || env.get(ENTITLEMENT_KEY, '')) return false;
+            if (env.get(PREMIUM_KEY, '') !== 'true' && env.get(LEGACY_PREMIUM_KEY, '') !== 'true') return false;
+            const t = parseInt(env.get('glowgrid_restore_dismissed', '0'), 10) || 0;
+            return !(t && env.now() - t < 7 * 86400000);
+        }
+        // RESTORE-END
         checkEntitlement({ sessionId: sessionId, get: store.get, isPremium: window.isPremium, base: window.__BASE__, fetch: function (u) { return fetch(u); }, now: function () { return Date.now(); } })
             .then(function (v) { window.isPremium = v; });
+        (function () {
+            const bar = document.getElementById('restore-bar');
+            if (!bar) return;
+            const env = { sessionId: sessionId, get: store.get, base: window.__BASE__, fetch: function (u, o) { return fetch(u, o); }, now: function () { return Date.now(); } };
+            if (!shouldPromptRestore(env)) return;
+            const msg = document.getElementById('restore-msg'), em = document.getElementById('restore-email');
+            bar.hidden = false;
+            document.getElementById('restore-dismiss').addEventListener('click', function () { store.set('glowgrid_restore_dismissed', Date.now()); bar.hidden = true; });
+            document.getElementById('restore-form').addEventListener('submit', function (ev) {
+                ev.preventDefault(); msg.textContent = 'Checking...';
+                restorePurchase(env, em.value).then(function (r) {
+                    if (r.state === 'restored') { store.set(ENTITLEMENT_KEY, r.token); store.set(PREMIUM_KEY, 'true'); window.isPremium = true; bar.hidden = true; announce('Purchase restored. The full game is unlocked on this device.'); }
+                    else if (r.state === 'none') msg.textContent = 'We did not find a Glowgrid purchase for that email. Try the address you paid with, or email support@buttsstudios.com. Your current unlock keeps working.';
+                    else if (r.state === 'bad') msg.textContent = 'Please enter a valid email address.';
+                    else msg.textContent = 'We could not check right now. Your current unlock keeps working; please try again later.';
+                });
+            });
+        })();
         const FREE_LEVEL_LIMIT = 5;
         const DAILY_LEVELS = 5;
         const ACCENT = '#7BC47F', STATIC_RED = '#E2553A', CHASER = '#B48CE8', BONE = '#F1ECE2';

@@ -5,7 +5,8 @@
 // of the page; it makes the unlock require a server-signed proof tied to a real paid Stripe session.
 const crypto = require('crypto');
 
-const TOKEN_DAYS = 365;
+// A one-time purchase must not silently expire: effectively lifetime (10 years). The exp claim stays for format stability.
+const TOKEN_DAYS = 3650;
 const b64u = (buf) => Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const unb64u = (s) => Buffer.from(String(s).replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 
