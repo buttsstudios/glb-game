@@ -270,3 +270,12 @@ test('privacy describes the restore check in one plain sentence', () => {
   const p = fs.readFileSync(path.join(__dirname, '..', 'privacy.html'), 'utf8');
   assert.match(p, /asks Stripe whether a paid purchase exists for the email you enter; the email is not stored/);
 });
+
+test('legal pages carry no unfilled-fact promises (governing law, venue, address)', () => {
+  const bad = /will be stated|stated here|to be confirmed|\bTBD\b|\[CONFIRM|placeholder|governing law and venue/i;
+  for (const f of ['terms.html', 'refunds.html', 'privacy.html']) {
+    const t = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+    const m = t.match(bad);
+    assert.ok(!m, f + ' contains: ' + (m && m[0]));
+  }
+});
